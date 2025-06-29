@@ -1,0 +1,4 @@
+sql/*.sql
+query-agent/__pycache__
+.venv
+*.env
