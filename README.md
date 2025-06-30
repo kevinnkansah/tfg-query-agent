@@ -23,17 +23,17 @@ Framework in use is [Google ADK](https://google.github.io/adk-docs/)
 
  #### In mysql run 
 
-`CREATE tfg;` 
-`USE tfg;`
-`SOURCE file.sql;`
+1. `CREATE tfg;` 
+2. `USE tfg;`
+3. `SOURCE file.sql;`
 
 This is the creation of the example database that queries will be executed against
 
  ### To run agent:
 
- `adk web` - run with web interface
- `adk run` -  run with CLI
- `adk api_server` - run FastAPI server
+ 1. `adk web` - run with web interface
+ 2. `adk run` -  run with CLI
+ 3. `adk api_server` - run FastAPI server
 
 
 
