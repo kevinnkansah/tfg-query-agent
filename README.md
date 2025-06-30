@@ -8,6 +8,8 @@ Framework in use is [Google ADK](https://google.github.io/adk-docs/)
 
  
  `pip install -r requirements.txt`
+  OR 
+ `uv sync` (Prefferable)
 
  ### To setup with local db 
  
@@ -36,9 +38,8 @@ This is the creation of the example database that queries will be executed again
  3. `adk api_server` - run FastAPI server
 
 
+### Architecture
 
-
-
-
+[![Click to watch](demo/workflow-design.png)](demo/video-demo.mp4)
 
 

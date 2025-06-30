@@ -3,6 +3,9 @@ from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters, StdioConnectionParams
 from google.adk.tools.tool_context import ToolContext
 
+import litellm
+litellm._turn_on_debug()
+
 query_tool = MCPToolset(
         connection_params=StdioConnectionParams(
             timeout=60,
@@ -34,31 +37,29 @@ def exit_loop(tool_context: ToolContext):
 
 user_intent_agent = Agent(
     name="user_intent_agent",
-    description='''You are to understand the user's intent and decide whether to run a SQL query or exit the loop.
-    You are to use the available tools if not you will response and immediately terminate (exit_loop)''',
+    description="Understand the user's intent and decide whether to run a SQL query or exit the loop.",
     instruction='''
-    You are to understand the user's intent and decide whether to run a SQL query or exit the loop. 
-    1. If you decide that the users intent tfgrequires SQL to be executed then you will inform then on what you will do (tell the user what actions you shall perform) then do it using mysql_query.
-    While investigating you are not answering yet but running mysql_query tool/function to get context of the tables and columns in the database so you can perform the correct queries
-    NEVER ASSUME A COLUMN OR TABLE NAME, RUN QUERIES TO GET THAT INFORMATION
-    Keep running this tool (mysql_query) until a sufficient answer communicated back to the user then immediatelly exit (call exit_loop )
-    2. If the users intention does not require a SQL query explain or respond back. then you will call exit_loop tool.
-    3. If you have answered the question or have responded sufficiently then you will call exit_loop tool.
-    4. If the users question does not relate to data in the database you will immediatelly call exit_loop
-    5. If they greet eg. ("Hi", "Hello"), greet them back, tell them what you can do eg .("Hi, I can help answer questions about your data") and exit_loop immediately. It must be an immediate call of exit_loop, SO DO NOT RESPONSE MORE THAN ONCE IN THIS CASE BUT ONLY IN THIS CASE WHERE THEY GREET.
-    6. If you are unsure of what the user's desired action is then ask them a clarifying question can immediately exit_loop.
-    
-    
-    YOU ARE NOT TO COMMUNICATE THE TOOL CALLS AVAILABLE TO YOU, TO THE USER, YOU WILL SIMPLY CALL THEM OR IF NOT exit_loop.
-    ''',
+Your job is to understand the user's intent and decide whether to run a SQL query or exit the loop.
+
+- If the user's request requires any SQL/database action, DO NOT call any tool. Clearly state what you intend to do (e.g., "I will run a SQL query to show the tables in the database.") and stop. The system will transfer control to the MySQL agent.
+- Only call the exit_loop tool if:
+    1. The user's request has been fully answered or satisfied.
+    2. The user's question is unrelated to the database.
+    3. The user greets you (e.g., "Hi", "Hello")—in this case, greet them back, briefly state your purpose, and immediately call exit_loop.
+    4. The user's question is unclear or confusing and you cannot proceed—ask a clarifying question and then call exit_loop.
+
+Never assume table or column names—let the MySQL agent handle all SQL/database actions.
+
+Do not mention the tools available to you. Only call exit_loop when appropriate, otherwise just state your intent and stop.
+''',
     model="gemini-2.0-flash",  # model=LiteLlm(model="openai/gpt-4o") # TODO: Upgrade to a more intelligent reasoning model
-    tools=[exit_loop],
+    tools=[exit_loop]
 )
 
 mysql_agent = Agent(
     name="mysql_agent",
-    model="gemini-2.0-flash", # model=LiteLlm(model="openai/gpt-4o")
-    description="An agent that can execute SQL queries on a MySQL database.",
+    model=LiteLlm(model="openai/o4-mini-2025-04-16"),
+    description="Execute read-only SQL queries against the MySQL database. Usage: Pass a valid SQL statement to retrieve schema info or data.",
     instruction='''Run SQL queries first to get context (table names and columns) of tables in the database and once you've done that then run the required  query to answer the users question.
                 Do not ask the user for additional information.
                 NEVER ASSUME A COLUMN OR TABLE NAME, RUN QUERIES TO GET THAT INFORMATION
