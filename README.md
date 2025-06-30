@@ -15,6 +15,8 @@ Framework in use is [Google ADK](https://google.github.io/adk-docs/)
 
 `docker pull mysql` 
 
+`docker run --name mysql-server -e MYSQL_ROOT_PASSWORD=my-secret-pw -p 3306:3306 -d mysql`
+
 `docker exec -it mysql-server mysql -u root -p` 
 
 `docker cp file.sql mysql-server` 
@@ -33,7 +35,7 @@ This is the creation of the example database that queries will be executed again
  `adk run` -  run with CLI
  `adk api_server` - run FastAPI server
 
- 
+
 
 
 
