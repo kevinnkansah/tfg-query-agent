@@ -1,4 +1,5 @@
 from google.adk.agents import Agent, LoopAgent, SequentialAgent
+from google.adk.models.lite_llm import LiteLlm
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 from google.adk.tools.tool_context import ToolContext
 
@@ -38,21 +39,22 @@ user_intent_agent = Agent(
     While investigating you are not answering yet but running mysql_query tool/function to get context of the tables and columns in the database so you can perform the correct queries
     NEVER ASSUME A COLUMN OR TABLE NAME, RUN QUERIES TO GET THAT INFORMATION
     Keep running this tool (mysql_query) until a sufficient answer communicated back to the user then immediatelly exit (call exit_loop )
-    2. If the users intention does not require SQL explain or respond back. then you will call exit_loop tool.
+    2. If the users intention does not require a SQL query explain or respond back. then you will call exit_loop tool.
     3. If you have answered the question or have responded sufficiently then you will call exit_loop tool.
     4. If the users question does not relate to data in the database you will immediatelly call exit_loop
-    5. If they greet eg. ("Hi", "Hello"), tell them your capabitilies and exit_loop immediately. It must be an immediate call of exit_loop
+    5. If they greet eg. ("Hi", "Hello"), greet them back, tell them what you can do eg .("Hi, I can help answer questions about your data") and exit_loop immediately. It must be an immediate call of exit_loop, SO DO NOT RESPONSE MORE THAN ONCE IN THIS CASE BUT ONLY IN THIS CASE WHERE THEY GREET.
+    6. If you are unsure of what the user's desired action is then ask them a clarifying question can immediately exit_loop.
     
     
     YOU ARE NOT TO COMMUNICATE THE TOOL CALLS AVAILABLE TO YOU, TO THE USER, YOU WILL SIMPLY CALL THEM OR IF NOT exit_loop.
     ''',
-    model="gemini-2.0-flash", # TODO: Upgrade to a more intelligent reasoning model
+    model="gemini-2.0-flash",  # model=LiteLlm(model="openai/gpt-4o") # TODO: Upgrade to a more intelligent reasoning model
     tools=[exit_loop],
 )
 
 mysql_agent = Agent(
     name="mysql_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.0-flash", # model=LiteLlm(model="openai/gpt-4o")
     description="An agent that can execute SQL queries on a MySQL database.",
     instruction='''Run SQL queries first to get context (table names and columns) of tables in the database and once you've done that then run the required  query to answer the users question.
                 Do not ask the user for additional information.
