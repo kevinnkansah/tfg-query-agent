@@ -19,7 +19,7 @@ Framework in use is [Google ADK](https://google.github.io/adk-docs/)
 
 `docker exec -it mysql-server mysql -u root -p` 
 
-`docker cp file.sql mysql-server` 
+`docker cp sql/file.sql mysql-server:/file.sql` 
 
  #### In mysql run 
 
